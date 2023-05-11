@@ -1,15 +1,12 @@
-
-const URL = 'https:restcountries.com/v3.1/';
-
+const URL = 'https://restcountries.com/v3.1/name/';
 
 function fetchCountries(name) {
-    console.log(name);
-return fetch(
-    `${URL}?name/${name}`
-   ).then(response => response.json());
+  return fetch(`${URL}${name}?fields=name,capital,population,flags,languages`).then(response => {
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+    return response.json();
+  });
 }
 
 export { fetchCountries };
-
-//https:restcountries.com/v3.1/name/{name}
-
