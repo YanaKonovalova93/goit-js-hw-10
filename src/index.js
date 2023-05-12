@@ -29,14 +29,15 @@ function onSearchCountryName(e) {
   });
 }
 
-function createMarkup({ name, capital, population, languages }) {
+function createMarkup({ name, capital, population, languages, flags }) {
+  const languagesEl = Object.values(languages).join(', ');
   let markup = `
   <div class="country-card">
-  
-    <h2 class="country-name">${name.official}</h2>
+
+    <h2 class="country-name"><img class="icon" src="${flags.svg}" alt="flag" width="30px" height="30px" />  ${name.official}</h2>
     <h3 class="country-capital">Capital: ${capital}</h3>
     <h3 class="country-population">Population: ${population}</h3>
-    <h3 class="country-languages">Languages: ${languages}</h3>
+    <h3 class="country-languages">Languages: ${languagesEl}</h3>
     
   </div>`;
     
