@@ -1,13 +1,19 @@
 import debounce from 'lodash.debounce';
+import Notiflix from 'notiflix';
 import { fetchCountries } from './fetchCountries';
+
+import { inputEl } from './refs';
+
+import { createMarkupList } from './markup';
+import { createMarkupCard } from './markup';
+import { updateCountriesCard } from './markup';
+import { updateCountriesList } from './markup';
+import { clearMarkupList } from './markup';
+import { clearMarkupCard } from './markup';
 
 import './css/styles.css';
 
 const DEBOUNCE_DELAY = 300;
-
-const inputEl = document.getElementById('search-box');
-const divCountryEl = document.querySelector('.country-info');
-const listCountryEl = document.querySelector('.country-list');
 
 inputEl.addEventListener(
   'input',
@@ -15,35 +21,38 @@ inputEl.addEventListener(
 );
 
 function onSearchCountryName(e) {
-  let nameCountry = e.target.value;
+  let nameCountry = e.target.value.trim();
 
-  console.log(nameCountry);
+  if (nameCountry === '') {
+    clearMarkupList();
+    return clearMarkupCard();
+  }
 
-  console.log(fetchCountries(nameCountry));
+  clearMarkupCard();
+  clearMarkupList();
+  searchCountries(nameCountry);
+}
 
-  fetchCountries(nameCountry).then(countries => {
-    countries.forEach(country => {
-      const markup = createMarkup(country);
-      return updateNewsList(markup);
+function searchCountries(nameCountry) {
+  fetchCountries(nameCountry)
+    .then(countries => {
+      for (let i = 0; i < countries.length; i += 1) {
+        if (countries.length === 1) {
+          let markup = createMarkupCard(countries[i]);
+          updateCountriesCard(markup);
+        }
+        if (countries.length >= 2 && countries.length <= 10) {
+          let markup = createMarkupList(countries[i]);
+          updateCountriesList(markup);
+        }
+        if (countries.length > 10) {
+          return Notiflix.Notify.info(
+            'Too many matches found. Please enter a more specific name.'
+          );
+        }
+      }
+    })
+    .catch(error => {
+      Notiflix.Notify.failure('Oops, there is no country with that name');
     });
-  });
-}
-
-function createMarkup({ name, capital, population, languages, flags }) {
-  const languagesEl = Object.values(languages).join(', ');
-  let markup = `
-  <div class="country-card">
-
-    <h2 class="country-name"><img class="icon" src="${flags.svg}" alt="flag" width="30px" height="30px" />  ${name.official}</h2>
-    <h3 class="country-capital">Capital: ${capital}</h3>
-    <h3 class="country-population">Population: ${population}</h3>
-    <h3 class="country-languages">Languages: ${languagesEl}</h3>
-    
-  </div>`;
-    
-    return markup;
-}
-
-function updateNewsList(markup) {
-  return (divCountryEl.innerHTML = markup);
 }
